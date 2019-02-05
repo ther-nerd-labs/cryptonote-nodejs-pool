@@ -409,6 +409,7 @@ Explanation for each field:
 "wallet": {
     "host": "127.0.0.1",
     "port": 18982,
+    "username": "--rpc-username", //monero based wallet authentication
     "password": "--rpc-password"
 },
 

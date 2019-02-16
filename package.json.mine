@@ -24,7 +24,6 @@
         "promise-queue": "^2.2.5",
         "redis": "*",
         "request": "^2.88.0",
-        "request-promise": "^4.2.2",
         "request-promise-native": "^1.0.5",
         "socket.io": "^2.1.1",
         "time-ago": "*"

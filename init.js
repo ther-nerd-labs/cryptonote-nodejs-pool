@@ -19,8 +19,12 @@ require('./lib/logger.js');
 // Initialize redis database client
 var redis = require('redis');
 
-var redisDB = (config.redis.db && config.redis.db > 0) ? config.redis.db : 0;
-global.redisClient = redis.createClient(config.redis.port, config.redis.host, { db: redisDB, auth_pass: config.redis.auth });
+//var redisDB = (config.redis.db && config.redis.db > 0) ? config.redis.db : 0;
+//global.redisClient = redis.createClient(config.redis.port, config.redis.host, { db: redisDB, auth_pass: config.redis.auth });
+
+global.service = require('./lib/redisService.js')
+global.redisClient = service.init()
+
 
 // Load pool modules
 if (cluster.isWorker){
@@ -74,7 +78,7 @@ var singleModule = (function(){
  * Start modules
  **/
 (function init(){
-    checkRedisVersion(function(){
+    service.displayRepositoryInfo()
         if (singleModule){
             log('info', logSystem, 'Running in single module mode: %s', [singleModule]);
 
@@ -107,42 +111,7 @@ var singleModule = (function(){
             spawnChartsDataCollector();
             spawnTelegramBot();
         }
-    });
-})();
-
-/**
- * Check redis database version
- **/
-function checkRedisVersion(callback){
-    redisClient.info(function(error, response){
-        if (error){
-            log('error', logSystem, 'Redis version check failed');
-            return;
-        }
-        var parts = response.split('\r\n');
-        var version;
-        var versionString;
-        for (var i = 0; i < parts.length; i++){
-            if (parts[i].indexOf(':') !== -1){
-                var valParts = parts[i].split(':');
-                if (valParts[0] === 'redis_version'){
-                    versionString = valParts[1];
-                    version = parseFloat(versionString);
-                    break;
-                }
-            }
-        }
-        if (!version){
-            log('error', logSystem, 'Could not detect redis version - must be super old or broken');
-            return;
-        }
-        else if (version < 2.6){
-            log('error', logSystem, "You're using redis version %s the minimum required version is 2.6. Follow the damn usage instructions...", [versionString]);
-            return;
-        }
-        callback();
-    });
-}
+})()
 
 /**
  * Spawn pool workers module
